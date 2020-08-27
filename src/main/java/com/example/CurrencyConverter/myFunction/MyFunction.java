@@ -71,7 +71,6 @@ public class MyFunction {
         return String.valueOf(value);
     }
 
-
     public static void downloadFile(File file, String uploadPathCurrency) throws IOException, ParserConfigurationException, SAXException {
         //если файла нет, то он скачивается, если он есть, но не за сегодня, то перезакачивается
 

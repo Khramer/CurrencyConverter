@@ -46,8 +46,6 @@ public class MyFunction {
         return nameCurrencyAndValue;
     }
 
-
-
     //конвертация происходит по формуле (кол-во_валюты*валюта_1\валюта_2)
     public static String functionCurrencyConverter(String valuteInputOne,
                                                    String startCurrency,

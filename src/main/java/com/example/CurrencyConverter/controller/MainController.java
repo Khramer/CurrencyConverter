@@ -46,7 +46,7 @@ public class MainController {
         return "main";
     }
 
-    //вызов страницы с конвектором
+    //вызов страницы с конвертор
     @GetMapping("/converterPage")
     public String my(Map<String, Object> model) throws IOException, SAXException, ParserConfigurationException {
 
@@ -62,8 +62,8 @@ public class MainController {
         return "converterPage";
     }
 
-    //слушатель запросов на странице конвектора
-    // принимающий число которое нужно конвектировать,первая валюта, вторая валюта
+    //слушатель запросов на странице конвертор
+    //принимающий число которое нужно конвертировать,первая валюта, вторая валюта
     @PostMapping("/converterPage")
     public String convector(
             @RequestParam String amountOfCurrency,

@@ -40,13 +40,13 @@ public class MainController {
     @Autowired
     private MessageRateRepo messageRateRepo;
 
-    //начальная страница предлагающая перейти к конвектору
+    //начальная страница предлагающая перейти к конвертор
     @GetMapping("/")
     public String login() {
         return "main";
     }
 
-    //вызов страницы с конвертор
+    //вызов страницы с конвертер
     @GetMapping("/converterPage")
     public String my(Map<String, Object> model) throws IOException, SAXException, ParserConfigurationException {
 
@@ -62,7 +62,7 @@ public class MainController {
         return "converterPage";
     }
 
-    //слушатель запросов на странице конвертор
+    //слушатель запросов на странице конвертер
     //принимающий число которое нужно конвертировать,первая валюта, вторая валюта
     @PostMapping("/converterPage")
     public String convector(

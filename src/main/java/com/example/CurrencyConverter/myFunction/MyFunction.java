@@ -20,11 +20,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MyFunction {
-
     public static Map parsXmlFile(File file) throws ParserConfigurationException, IOException, SAXException {
         //Используем HashMap для хранения курса валют
         //ключом является наименование валюты, а хранимым значением является значение валюты
         //деленный на номинал
+        final int nameValute = 3;
+        final int valueValute = 4;
+        final int nominalValute = 2;
         Map<String, Float> nameCurrencyAndValue = new HashMap<String, Float>();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -33,51 +35,45 @@ public class MyFunction {
         Element element = document.getDocumentElement();
         NodeList nodeList = element.getChildNodes();
 
-        for (int i = 0; i < nodeList.getLength(); i++) {
+        for (int i = 0; i < nodeList.getLength(); ++i) {
             NodeList nodeListCurrency = ((Element) nodeList.item(i)).getChildNodes();
             nameCurrencyAndValue.put(
-                    nodeListCurrency.item(3).getTextContent(),
+                    nodeListCurrency.item(nameValute).getTextContent(),
                     //сразу вычисляем истиное значение валюты разделив ее на номинал
-                    Float.valueOf(nodeListCurrency.item(4).getTextContent().replace(",", "."))
-                            /
-                            Float.valueOf(nodeListCurrency.item(2).getTextContent())
+                    Float.valueOf(nodeListCurrency.item(valueValute).getTextContent().replace(",", ".")) /
+                            Float.valueOf(nodeListCurrency.item(nominalValute).getTextContent())
             );
         }
         return nameCurrencyAndValue;
     }
 
     //конвертация происходит по формуле (кол-во_валюты*валюта_1\валюта_2)
-    public static String functionCurrencyConverter(String valuteInputOne,
-                                                   String startCurrency,
-                                                   String finishCurrency,
-                                                   Map<String, Float> hashMapCurrency){
-        float value;
-        float valueFinishCurrency = 0.0f;
-        float valueStartCurrency = 0.0f;
+    public static float currencyConverter(float initialSum,
+                                           String nameInitialCurrency,
+                                           String nameResultCurrency,
+                                           Map<String, Float> hashMapCurrency){
+        float resultSum;
+        float amountInitialCurrency = 1.0f;
+        float amountResultCurrency = 1.0f;
 
-        if (startCurrency.equals("Рубль"))
-            valueStartCurrency = 1.0f;
-        else
-            valueStartCurrency = hashMapCurrency.get(startCurrency);
+        if (!nameInitialCurrency.equals("Рубль"))
+            amountResultCurrency = hashMapCurrency.get(nameInitialCurrency);
 
-        if (finishCurrency.equals("Рубль"))
-            valueFinishCurrency = 1.0f;
-        else
-            valueFinishCurrency = hashMapCurrency.get(finishCurrency);
+        if (!nameResultCurrency.equals("Рубль"))
+            amountInitialCurrency = hashMapCurrency.get(nameResultCurrency);
 
-        value = Float.parseFloat(valuteInputOne.replace(",", ".")) ;
-        value = value * valueStartCurrency/valueFinishCurrency;
+        resultSum = initialSum * amountResultCurrency/amountInitialCurrency;
 
-        return String.valueOf(value);
+        return resultSum;
     }
 
     public static void downloadFile(File file, String uploadPathCurrency) throws IOException, ParserConfigurationException, SAXException {
         //если файла нет, то он скачивается, если он есть, но не за сегодня, то перезакачивается
-
         if(!file.exists()){
             URL url = new URL(uploadPathCurrency);
             InputStream inputStream = url.openStream();
             Files.copy(inputStream, file.toPath());
+            inputStream.close();
         }
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -96,6 +92,7 @@ public class MyFunction {
             URL url = new URL(uploadPathCurrency);
             InputStream inputStream = url.openStream();
             Files.copy(inputStream, file.toPath());
+            inputStream.close();
         }
     }
 }

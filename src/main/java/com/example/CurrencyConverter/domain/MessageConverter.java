@@ -7,25 +7,24 @@ import javax.persistence.Id;
 
 @Entity
 public class MessageConverter {
-
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     private String date;
-    private String startCurrency;
-    private String finishCurrency;
-    private String startSum;
-    private String finishSum;
+    private String initialCurrency;
+    private String resultCurrency;
+    private String initialSum;
+    private String resultSum;
 
     public MessageConverter(){}
 
-    public MessageConverter(String date, String startCurrency, String finishCurrency, String startSum, String finishSum) {
+    public MessageConverter(String date, String initialCurrency, String resultCurrency, String initialSum, String resultSum) {
         this.date = date;
-        this.startCurrency = startCurrency;
-        this.finishCurrency = finishCurrency;
-        this.startSum = startSum;
-        this.finishSum = finishSum;
+        this.initialCurrency = initialCurrency;
+        this.resultCurrency = resultCurrency;
+        this.initialSum = initialSum;
+        this.resultSum = resultSum;
     }
 
     public String getDate() {
@@ -36,35 +35,35 @@ public class MessageConverter {
         this.date = date;
     }
 
-    public String getStartCurrency() {
-        return startCurrency;
+    public String getInitialCurrency() {
+        return initialCurrency;
     }
 
-    public void setStartCurrency(String startCurrency) {
-        this.startCurrency = startCurrency;
+    public void setInitialCurrency(String initialCurrency) {
+        this.initialCurrency = initialCurrency;
     }
 
-    public String getFinishCurrency() {
-        return finishCurrency;
+    public String getResultCurrency() {
+        return resultCurrency;
     }
 
-    public void setFinishCurrency(String finishCurrency) {
-        this.finishCurrency = finishCurrency;
+    public void setResultCurrency(String resultCurrency) {
+        this.resultCurrency = resultCurrency;
     }
 
-    public String getStartSum() {
-        return startSum;
+    public String getInitialSum() {
+        return initialSum;
     }
 
-    public void setStartSum(String startSum) {
-        this.startSum = startSum;
+    public void setInitialSum(String initialSum) {
+        this.initialSum = initialSum;
     }
 
-    public String getFinishSum() {
-        return finishSum;
+    public String getResultSum() {
+        return resultSum;
     }
 
-    public void setFinishSum(String finishSum) {
-        this.finishSum = finishSum;
+    public void setResultSum(String resultSum) {
+        this.resultSum = resultSum;
     }
 }

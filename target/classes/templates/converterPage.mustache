@@ -3,7 +3,7 @@
     <div>
         <form method="post">
             <div>
-                <select name = "currencySelectOne">
+                <select name = "currencySelectOne" >
                     <option value = "Рубль">Рубли</option>
                     <option value = "Доллар США">Доллар США</option>
                     <option value = "Евро">Евро</option>
@@ -39,8 +39,6 @@
                     <option value = "Южноафриканских рэндов">Южноафриканских рэндов</option>
                     <option value = "Вон Республики Корея">Вон Республики Корея</option>
                     <option value = "Японских иен">Японских иен</option>
-
-
                 </select>
 
                 <select name = "currencySelectTwo">
@@ -83,25 +81,32 @@
             </div>
 
             <div>
-                <input type="text" name="amountOfCurrency" placeholder={{amountOfCurrencyStart}} />
-                <input type="text" name="currencyInputTwo" placeholder={{amountOfCurrencyFinish}} />
+                <input type="text" name="amountOfCurrency"/>
+                <div>
+                     <b>{{nameCurrencyOne}}: {{amountOfCurrencyInitial}}</b>
+                     <b>{{nameCurrencyTwo}}: {{amountOfCurrencyResult}}</b>
+                </div>
                 <input type = "hidden" name="_csrf" value="{{_csrf.token}}" />
             </div>
 
-            <div><button type="submit">Посчитать</button></div?
+            <div><button type="submit">Конвертировать</button></div?
         </form>
+    </div>
+
+    <div>
+        <a href="/allRequest">Все запросы</a>
     </div>
 
     {{#messages}}
         <div>
             <div>{{date}}</div>
             <div>
-                <span>{{startCurrency}}</span> |
-                <i>{{finishCurrency}}</i>
+                <span>{{initialCurrency}}</span> |
+                <i>{{resultCurrency}}</i>
             </div>
             <div>
-                <i>{{startSum}}</i> |
-                <i>{{finishSum}}</i>
+                <i>{{initialSum}}</i> |
+                <i>{{resultSum}}</i>
             </div>
         </div>
     {{/messages}}

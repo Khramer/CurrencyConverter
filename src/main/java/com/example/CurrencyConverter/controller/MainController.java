@@ -1,7 +1,7 @@
 package com.example.CurrencyConverter.controller;
 
 import com.example.CurrencyConverter.domain.MessageConverter;
-import com.example.CurrencyConverter.repos.MessageRateRepo;
+import com.example.CurrencyConverter.repos.MessageRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -11,9 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
-import java.text.DateFormat;
-import java.util.Calendar;
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,12 +22,11 @@ import static com.example.CurrencyConverter.myFunction.MyFunction.*;
 //основной контроллер
 @Controller
 public class MainController {
-
-    String finishSum;
-    Map<String, Float> nameCurrencyAndValue;
+    String resultSum;
+    Map<String, Float> namesСurrencieAndCoefficients;
     Date date;
 
-    //путь к файлу XML
+    //путь к файлу XML в котором расположены курсы валют
     @Value("${upload.path}")
     private String uploadPath;
 
@@ -38,63 +36,66 @@ public class MainController {
 
     //репозиторий всех запросов
     @Autowired
-    private MessageRateRepo messageRateRepo;
+    private MessageRepo messageRepo;
 
-    //начальная страница предлагающая перейти к конвертор
+    //начальная страница предлагающая перейти к конвертеру валют
     @GetMapping("/")
-    public String login() {
+    public String rootPage() {
         return "main";
     }
 
-    //вызов страницы с конвертер
+    //вызов страницы с конвертером
     @GetMapping("/converterPage")
-    public String my(Map<String, Object> model) throws IOException, SAXException, ParserConfigurationException {
-
+    public String converterPage(Map<String, Object> model) throws IOException, SAXException, ParserConfigurationException {
         downloadFile(new File(uploadPath), uploadPathCurrency);
-        nameCurrencyAndValue = (HashMap<String,Float>)parsXmlFile(new File(uploadPath));
+        namesСurrencieAndCoefficients = (HashMap<String,Float>)parsXmlFile(new File(uploadPath));
         date = new  Date();
 
-        model.put("amountOfCurrencyStart", "0");
-        model.put("amountOfCurrencyFinish", "0");
-        Iterable<MessageConverter> fullMessagesConverter = messageRateRepo.findAll();
-        model.put("messages", fullMessagesConverter);
+        model.put("nameCurrencyOne", "Рубли");
+        model.put("nameCurrencyTwo", "Рубли");
+        model.put("amountOfCurrencyInitial", "0");
+        model.put("amountOfCurrencyResult", "0");
 
         return "converterPage";
     }
 
     //слушатель запросов на странице конвертер
-    //принимающий число которое нужно конвертировать,первая валюта, вторая валюта
+    //принимающий число равное кол-ву валюты, которую будем конвертировать,
+    //название валюты которую будем конвертировать, и название валюты в которую будем конвертировать
     @PostMapping("/converterPage")
-    public String convector(
+    public String converter(
             @RequestParam String amountOfCurrency,
             @RequestParam String currencySelectOne,
             @RequestParam String currencySelectTwo,
             Map<String, Object> model
     ) {
-
         //если пришедшее сообщение вообще не имеет чисел, то заменяем ее на 0
         amountOfCurrency = amountOfCurrency.replaceAll("[^0-9]","");
         if(amountOfCurrency.equals(""))
             amountOfCurrency = "0";
         //считаем финальное значение через свою функцию functionCurrencyConverter
-        finishSum = functionCurrencyConverter(amountOfCurrency, currencySelectOne, currencySelectTwo, nameCurrencyAndValue);
+        resultSum = String.valueOf(currencyConverter(Float.parseFloat(amountOfCurrency.replace(",", ".")), currencySelectOne, currencySelectTwo, namesСurrencieAndCoefficients));
 
         //записываем новое сообщение
-        //дата запроса
-        //валюта из которой конвектируем
-        //валюта в которую конвектируем
-        //кол-во валюты
-        //финальная сумма
-        MessageConverter messageConverter  = new MessageConverter(date.toString(), currencySelectOne, currencySelectTwo, amountOfCurrency, finishSum);
-        messageRateRepo.save(messageConverter);
+        MessageConverter messageConverter  = new MessageConverter(date.toString(), currencySelectOne, currencySelectTwo, amountOfCurrency, resultSum);
+        messageRepo.save(messageConverter);
 
         //записывем все в модель и отправляем на страницу
-        model.put("amountOfCurrencyStart", amountOfCurrency);
-        model.put("amountOfCurrencyFinish", finishSum);
-        Iterable<MessageConverter> fullMessagesConverter = messageRateRepo.findAll();
-        model.put("messages", fullMessagesConverter);
+        model.put("nameCurrencyOne", currencySelectOne);
+        model.put("nameCurrencyTwo", currencySelectTwo);
+        model.put("amountOfCurrencyInitial", amountOfCurrency);
+        model.put("amountOfCurrencyResult", resultSum);
 
         return "converterPage";
+    }
+
+    //вызов страницы с конвертером
+    @GetMapping("/allRequest")
+    public String allRequest(Map<String, Object> model) throws IOException, SAXException, ParserConfigurationException {
+        Iterable<MessageConverter> allRequest = messageRepo.findAll();
+        model.put("messages", allRequest);
+
+        return "allRequest";
     }
 }
 

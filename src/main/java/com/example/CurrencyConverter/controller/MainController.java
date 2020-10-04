@@ -1,6 +1,5 @@
 package com.example.CurrencyConverter.controller;
 
-import com.example.CurrencyConverter.domain.CurrencyValue;
 import com.example.CurrencyConverter.domain.MessageConverter;
 import com.example.CurrencyConverter.repos.CurrencyRepo;
 import com.example.CurrencyConverter.repos.MessageRepo;
@@ -19,7 +18,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.example.CurrencyConverter.myFunction.MyFunction.*;
@@ -28,7 +26,7 @@ import static com.example.CurrencyConverter.myFunction.MyFunction.*;
 @EnableScheduling
 @Controller
 public class MainController {
-    String resultSum;
+    private String resultSum;
 
     //путь к файлу XML в котором расположены курсы валют
     @Value("${upload.path}")
@@ -41,7 +39,7 @@ public class MainController {
     //репозиторий всех запросов
     @Autowired
     private MessageRepo messageRepo;
-
+    //репозиторий курса валют
     @Autowired
     private CurrencyRepo currencyRepo;
 
@@ -51,26 +49,20 @@ public class MainController {
         parsXmlFileInDateBase(new File(uploadPath), currencyRepo);
     }
 
-
     @Scheduled(cron = "* * 0 * * ?")
     public void reportCurrentTime() throws ParserConfigurationException, SAXException, IOException {
         downloadFile(new File(uploadPath), uploadPathCurrency);
         parsXmlFileInDateBase(new File(uploadPath), currencyRepo);
     }
 
-    //начальная страница предлагающая перейти к конвертеру валют
     @GetMapping("/")
-    public String rootPage() {
+    public String rootPage(){
         return "main";
     }
 
     //вызов страницы с конвертером
     @GetMapping("/converterPage")
-    public String converterPage(Map<String, Object> model) throws IOException, SAXException, ParserConfigurationException {
-        downloadFile(new File(uploadPath), uploadPathCurrency);
-        //namesСurrencieAndCoefficients = (HashMap<String,Float>)parsXmlFileInHashMap(new File(uploadPath));
-        parsXmlFileInDateBase(new File(uploadPath), currencyRepo);
-
+    public String converterPage(Map<String, Object> model){
         model.put("nameCurrencyOne", "Рубли");
         model.put("nameCurrencyTwo", "Рубли");
         model.put("amountOfCurrencyInitial", "0");
@@ -80,21 +72,17 @@ public class MainController {
     }
 
     //слушатель запросов на странице конвертер
-    //принимающий число равное кол-ву валюты, которую будем конвертировать,
-    //название валюты которую будем конвертировать, и название валюты в которую будем конвертировать
     @PostMapping("/converterPage")
     public String converter(
             @RequestParam String amountOfCurrency,
             @RequestParam String currencySelectOne,
             @RequestParam String currencySelectTwo,
             Map<String, Object> model
-    ) {
-        //если пришедшее сообщение вообще не имеет чисел, то заменяем ее на 0
+    ){
+        //если полученное сообщение вообще не имеет чисел, то заменяем ее на 0
         amountOfCurrency = amountOfCurrency.replaceAll("[^0-9]","");
         if(amountOfCurrency.equals(""))
             amountOfCurrency = "0";
-        //считаем финальное значение через свою функцию functionCurrencyConverter
-        //resultSum = String.valueOf(currencyConverter(Float.parseFloat(amountOfCurrency.replace(",", ".")), currencySelectOne, currencySelectTwo, namesСurrencieAndCoefficients));
         resultSum = String.valueOf(currencyConverterFromDB(Float.parseFloat(amountOfCurrency.replace(",", ".")), currencySelectOne, currencySelectTwo, currencyRepo));
 
         //записываем новое сообщение
@@ -112,7 +100,7 @@ public class MainController {
 
     //вызов страницы с конвертером
     @GetMapping("/allRequest")
-    public String allRequest(Map<String, Object> model) throws IOException, SAXException, ParserConfigurationException {
+    public String allRequest(Map<String, Object> model){
         Iterable<MessageConverter> allRequest = messageRepo.findAll();
         model.put("messages", allRequest);
 

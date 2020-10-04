@@ -1,29 +1,37 @@
 package com.example.CurrencyConverter.controller;
 
+import com.example.CurrencyConverter.domain.CurrencyValue;
 import com.example.CurrencyConverter.domain.MessageConverter;
+import com.example.CurrencyConverter.repos.CurrencyRepo;
 import com.example.CurrencyConverter.repos.MessageRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.xml.sax.SAXException;
 
+import javax.annotation.PostConstruct;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.example.CurrencyConverter.myFunction.MyFunction.*;
 
 //основной контроллер
+@EnableScheduling
 @Controller
 public class MainController {
     String resultSum;
-    Map<String, Float> namesСurrencieAndCoefficients;
+    //Map<String, Float> namesСurrencieAndCoefficients;
     Date date;
 
     //путь к файлу XML в котором расположены курсы валют
@@ -38,6 +46,23 @@ public class MainController {
     @Autowired
     private MessageRepo messageRepo;
 
+    @Autowired
+    private CurrencyRepo currencyRepo;
+
+    @PostConstruct
+    public void Setup() throws ParserConfigurationException, SAXException, IOException {
+        downloadFile(new File(uploadPath), uploadPathCurrency);
+        parsXmlFileInDateBase(new File(uploadPath), currencyRepo);
+        date = new  Date();
+    }
+
+
+    @Scheduled(cron = "* * 0 * * ?")
+    public void reportCurrentTime() throws ParserConfigurationException, SAXException, IOException {
+        downloadFile(new File(uploadPath), uploadPathCurrency);
+        parsXmlFileInDateBase(new File(uploadPath), currencyRepo);
+    }
+
     //начальная страница предлагающая перейти к конвертеру валют
     @GetMapping("/")
     public String rootPage() {
@@ -48,8 +73,10 @@ public class MainController {
     @GetMapping("/converterPage")
     public String converterPage(Map<String, Object> model) throws IOException, SAXException, ParserConfigurationException {
         downloadFile(new File(uploadPath), uploadPathCurrency);
-        namesСurrencieAndCoefficients = (HashMap<String,Float>)parsXmlFile(new File(uploadPath));
-        date = new  Date();
+        //namesСurrencieAndCoefficients = (HashMap<String,Float>)parsXmlFileInHashMap(new File(uploadPath));
+        parsXmlFileInDateBase(new File(uploadPath), currencyRepo);
+
+
 
         model.put("nameCurrencyOne", "Рубли");
         model.put("nameCurrencyTwo", "Рубли");
@@ -74,7 +101,8 @@ public class MainController {
         if(amountOfCurrency.equals(""))
             amountOfCurrency = "0";
         //считаем финальное значение через свою функцию functionCurrencyConverter
-        resultSum = String.valueOf(currencyConverter(Float.parseFloat(amountOfCurrency.replace(",", ".")), currencySelectOne, currencySelectTwo, namesСurrencieAndCoefficients));
+        //resultSum = String.valueOf(currencyConverter(Float.parseFloat(amountOfCurrency.replace(",", ".")), currencySelectOne, currencySelectTwo, namesСurrencieAndCoefficients));
+        resultSum = String.valueOf(currencyConverterFromDB(Float.parseFloat(amountOfCurrency.replace(",", ".")), currencySelectOne, currencySelectTwo, currencyRepo));
 
         //записываем новое сообщение
         MessageConverter messageConverter  = new MessageConverter(date.toString(), currencySelectOne, currencySelectTwo, amountOfCurrency, resultSum);

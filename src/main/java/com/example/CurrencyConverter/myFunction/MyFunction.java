@@ -20,9 +20,7 @@ import java.text.DateFormat;
 import java.util.*;
 
 public class MyFunction {
-    //@Autowired
-    //static private CurrencyRepo currencyRepo;
-
+    //старый способ парсить файл с курсом валют, которые я потом сохранял в хешмеп
     public static Map parsXmlFileInHashMap(File file) throws ParserConfigurationException, IOException, SAXException {
         //Используем HashMap для хранения курса валют
         //ключом является наименование валюты, а хранимым значением является значение валюты
@@ -32,7 +30,6 @@ public class MyFunction {
         final int nominalValuteMN = 2;
         float resultValueCurrency = 0.0f;
         Map<String, Float> nameCurrencyAndValue = new HashMap<String, Float>();
-
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -119,27 +116,8 @@ public class MyFunction {
 
     public static void downloadFile(File file, String uploadPathCurrency) throws IOException, ParserConfigurationException, SAXException {
         //если файла нет, то он скачивается, если он есть, но не за сегодня, то перезакачивается
-        if(file.exists()){
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(file);
-
-            Element element = document.getDocumentElement();
-
-            Date date = new  Date();
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-
-            if(!dateFormat.equals(element.getAttribute("Date"))){
-                file.delete();
-                URL url = new URL(uploadPathCurrency);
-                InputStream inputStream = url.openStream();
-                Files.copy(inputStream, file.toPath());
-                inputStream.close();
-            }
-        }
-        else{
+        if(file.exists()) {
+            file.delete();
             URL url = new URL(uploadPathCurrency);
             InputStream inputStream = url.openStream();
             Files.copy(inputStream, file.toPath());

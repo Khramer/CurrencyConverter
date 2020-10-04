@@ -19,9 +19,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.example.CurrencyConverter.myFunction.MyFunction.*;
@@ -31,8 +29,6 @@ import static com.example.CurrencyConverter.myFunction.MyFunction.*;
 @Controller
 public class MainController {
     String resultSum;
-    //Map<String, Float> namesСurrencieAndCoefficients;
-    Date date;
 
     //путь к файлу XML в котором расположены курсы валют
     @Value("${upload.path}")
@@ -53,7 +49,6 @@ public class MainController {
     public void Setup() throws ParserConfigurationException, SAXException, IOException {
         downloadFile(new File(uploadPath), uploadPathCurrency);
         parsXmlFileInDateBase(new File(uploadPath), currencyRepo);
-        date = new  Date();
     }
 
 
@@ -75,8 +70,6 @@ public class MainController {
         downloadFile(new File(uploadPath), uploadPathCurrency);
         //namesСurrencieAndCoefficients = (HashMap<String,Float>)parsXmlFileInHashMap(new File(uploadPath));
         parsXmlFileInDateBase(new File(uploadPath), currencyRepo);
-
-
 
         model.put("nameCurrencyOne", "Рубли");
         model.put("nameCurrencyTwo", "Рубли");
@@ -105,7 +98,7 @@ public class MainController {
         resultSum = String.valueOf(currencyConverterFromDB(Float.parseFloat(amountOfCurrency.replace(",", ".")), currencySelectOne, currencySelectTwo, currencyRepo));
 
         //записываем новое сообщение
-        MessageConverter messageConverter  = new MessageConverter(date.toString(), currencySelectOne, currencySelectTwo, amountOfCurrency, resultSum);
+        MessageConverter messageConverter  = new MessageConverter(LocalDateTime.now().toString(), currencySelectOne, currencySelectTwo, amountOfCurrency, resultSum);
         messageRepo.save(messageConverter);
 
         //записывем все в модель и отправляем на страницу
